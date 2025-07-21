@@ -1,0 +1,48 @@
+/* Apply styles to the main app container */
+.stApp {
+    background-color: #f3efe8;
+}
+
+/* Card-like container style with border and shadow */
+.card {
+    background-color: #ffffff;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+    margin-bottom: 2rem;
+    height: 100%; 
+}
+
+/* --- NEW: Style for section headers OUTSIDE cards --- */
+h3 {
+    margin-top: 0px;
+    padding-bottom: 0.5rem; /* Adds a little space below the title */
+    font-weight: bold;
+    color: #1f493d; /* Deep Green */
+}
+
+/* A more subtle horizontal rule for separating sections */
+hr {
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+    border-top: 1px solid #e6e6e6 !important;
+}
+
+/* Style for the main analysis button */
+.stButton > button {
+    width: 100%;
+    border-radius: 1.5rem !important;
+    background-color: #1f493d; /* Deep Green for CTA */
+    color: #ffffff;
+    font-weight: bold;
+    padding: 0.75rem 1rem;
+    border: none !important;
+}
+
+.stButton > button:hover {
+    background-color: #336659; /* Lighter green on hover */
+    color: #ffffff !important;
+    border: none !important;
+}
+

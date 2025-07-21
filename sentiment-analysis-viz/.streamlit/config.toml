@@ -1,0 +1,15 @@
+[theme]
+# This is the primary color for buttons and other interactive elements.
+primaryColor="#336659"
+
+# The main background color of the app.
+backgroundColor="#f3efe8"
+
+# The background color of cards and other containers.
+secondaryBackgroundColor="#ffffff"
+
+# The color of the text.
+textColor="#3d3d3d"
+
+# The font for the app.
+font="sans serif"
