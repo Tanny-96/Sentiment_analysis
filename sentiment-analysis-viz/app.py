@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import streamlit as st
-import pandas as pd
 import pdfplumber
 import smtplib
 from email.mime.text import MIMEText
@@ -27,24 +25,33 @@ if "history" not in st.session_state:
 if "alert_sent" not in st.session_state:
     st.session_state.alert_sent = False
 
-# --- Email Sending Logic (No changes) ---
+# --- Email Sending Logic (with Debugging) ---
 def send_alert_email(recent_history_df):
     try:
+        # --- DEBUGGING LINE ---
+        # This will print the loaded credentials to your terminal.
+        # Check the terminal where you run "streamlit run app.py"
+        print("DEBUG: Loaded secrets:", st.secrets.get("email_credentials"))
+        # --- END DEBUGGING LINE ---
+
         sender = st.secrets["email_credentials"]["sender_email"]
         password = st.secrets["email_credentials"]["sender_password"]
         recipient = st.secrets["email_credentials"]["recipient_email"]
+        
         subject = "ALERT: Negative Sentiment Spike Detected!"
         body_html = f"<html><body><h2>🚨 Alert</h2><p>A spike in negative emotions has been detected.</p><p><b>Recent History:</b></p>{recent_history_df.to_html(index=False)}</body></html>"
         msg = MIMEMultipart()
         msg['From'] = sender; msg['To'] = recipient; msg['Subject'] = subject
         msg.attach(MIMEText(body_html, 'html'))
+        
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()
             server.login(sender, password)
             server.sendmail(sender, recipient, msg.as_string())
         st.toast("Alert email sent successfully!", icon="📧")
-    except Exception:
-        st.warning("Email credentials not set or incorrect. Cannot send email.", icon="⚠️")
+    except Exception as e:
+        st.warning(f"Failed to send email. Error: {e}", icon="❌")
+
 
 # --- Alerting Logic (No changes) ---
 def check_for_sentiment_spike():
@@ -77,7 +84,7 @@ def process_and_display(text: str):
     st.session_state.history.append({
         "Message": text, "Top Emotion": top_emotion, "Top Score": top_score, "All Scores": all_scores
     })
-    emotion_emoji_map = {"anger": "😠", "sadness": "😢", "fear": "😨", "joy": "😄", "surprise": "😮", "disgust": "🤢", "neutral": "😐"}
+    emotion_emoji_map = {"anger": "😠", "sadness": "😢", "fear": "😨", "joy": "😄", "surprise": "😮", "disgust": "🤢", "neutral": "�"}
     emoji = emotion_emoji_map.get(top_emotion, "❓")
     st.success(f"{emoji} Dominant Emotion: **{top_emotion.capitalize()}**\n\n🔢 Confidence Score: `{top_score:.2f}`")
 
@@ -106,12 +113,10 @@ elif mode == "Upload Support Ticket (PDF)":
             if st.button("Analyze PDF Content"): process_and_display(full_text)
         except Exception as e: st.error(f"Failed to process PDF file. Error: {e}")
 
-# --- History and Visualization ---
+# --- History and Visualization (No changes) ---
 if st.session_state.history:
     st.markdown("---")
     check_for_sentiment_spike()
-
-    # --- Overall Sentiment Breakdown (No changes) ---
     st.markdown("### 📊 Overall Sentiment Breakdown")
     positive_emotions = {'joy'}; neutral_emotions = {'neutral', 'surprise'}
     total_count = len(st.session_state.history)
@@ -125,35 +130,21 @@ if st.session_state.history:
     st.markdown(f"⚪ **Neutral:** `{neu_perc:.1f}%`"); st.progress(int(neu_perc))
     st.markdown(f"🔴 **Negative:** `{neg_perc:.1f}%`"); st.progress(int(neg_perc))
     st.markdown("---")
-
-    # --- Interactive Emotion Trend Chart ---
     st.markdown("### 📈 Emotion Trend")
     chart_type = st.radio("Select Chart Type:", ["Line", "Bar"], horizontal=True, key="chart_toggle")
-
-    # Prepare data for the new chart
     chart_data = []
     for entry in st.session_state.history:
         scores_dict = {item['label']: item['score'] for item in entry['All Scores']}
         chart_data.append(scores_dict)
     chart_df = pd.DataFrame(chart_data)
-
-    # Group emotions for plotting in the desired color order
     plot_df = pd.DataFrame({
         'Positive': chart_df.get('joy', 0),
         'Negative': chart_df.get(list(NEGATIVE_EMOTIONS), 0).sum(axis=1),
         'Neutral': chart_df.get(['neutral', 'surprise'], 0).sum(axis=1)
     })
-
-    # Define the colors to match the DataFrame column order
-    # Positive (Green), Negative (Red), Neutral (Grey)
     color_map = ["#26A358", "#FF4B4B", "#808495"]
-
-    if chart_type == "Line":
-        st.line_chart(plot_df, color=color_map)
-    else:
-        st.bar_chart(plot_df, color=color_map)
-    # --- END of chart section ---
-
+    if chart_type == "Line": st.line_chart(plot_df, color=color_map)
+    else: st.bar_chart(plot_df, color=color_map)
     st.markdown("## 📚 Analysis History")
     history_df_data = [{"Message": e["Message"], "Top Emotion": e["Top Emotion"], "Score": e["Top Score"]} for e in st.session_state.history]
     df = pd.DataFrame(history_df_data)
