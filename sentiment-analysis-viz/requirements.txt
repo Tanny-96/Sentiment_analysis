@@ -1,8 +1,6 @@
 streamlit
-matplotlib
-seaborn
 pandas
-scikit-learn
-nltk
-textblob
 pdfplumber
+transformers
+torch
+numpy
